@@ -5,7 +5,7 @@ const config = require('./config.json').lights,
 
 module.exports = { get, put };
 
-function get(path) {
+function get(path = '/') {
 	return new Promise((resolve, reject) => {
 		const req = http.request({
 			hostname: config.host,

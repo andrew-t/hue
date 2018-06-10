@@ -2,16 +2,31 @@ const { put } = require('./util');
 
 const on = { on: true },
 	off = { on: false };
+Object.freeze(on);
+Object.freeze(off);
 
 module.exports = {
-	all,
-	hsl, rgb,
-	white,
+	// setters
+	all, one, many,
+	// payload generators
+	hsl, rgb, white,
+	// canned payloads
 	on, off
 }
 
 function all(payload) {
 	return put('/groups/0/action', payload);
+}
+
+function one(which, payload) {
+	return put(`/lights/${which}/state`, payload);
+}
+
+// eg: { 0: {on:true}, 1: {on:false} ... }
+function many(payloads) {
+	return Promise.all(
+		Object.keys(payloads).map(
+			light => one(light, payloads[light])));
 }
 
 // hue is 0..360; others are 0..1
