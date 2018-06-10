@@ -13,6 +13,9 @@ class Group {
 			(this.name.toLowerCase() == name.toLowerCase());
 	}
 
+	isOn() {
+		return this.anyOn();
+	}
 	async allOn() {
 		const state = (await this.getState()).state;
 		return state.all_on;

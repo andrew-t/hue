@@ -5,9 +5,13 @@ Object.freeze(off);
 
 module.exports = {
 	// payload generators
-	hsl, rgb, white,
+	hsl, rgb, white, dim,
 	// canned payloads
 	on, off
+}
+
+function dim(brightness) {
+	return hsl(0, 0, brightness);
 }
 
 // hue is 0..360; others are 0..1
