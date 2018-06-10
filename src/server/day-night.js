@@ -15,7 +15,7 @@ module.exports = function dayNight(app) {
 }
 
 const day = states.white(70000, 1),
-	night = states.white(20000, 0.2);
+	night = states.white(10000, 0.2);
 function appropriatePreset() {
 	const h = new Date().getHours();
 	return (h >= 22 || h <= 4) ? night : day;
