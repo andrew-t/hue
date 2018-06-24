@@ -10,12 +10,15 @@ module.exports = {
 	on, off
 }
 
+const colTemp = require('./color-temperature');
+
 function dim(brightness) {
 	return hsl(0, 0, brightness);
 }
 
 // hue is 0..360; others are 0..1
 function hsl(hue, saturation, lightness) {
+	// console.log(hue, saturation, lightness)
 	if (!lightness)
 		return off;
 	return {
@@ -34,45 +37,30 @@ function rgb(red, green, blue) {
 	// https://www.rapidtables.com/convert/color/rgb-to-hsl.html
 	const cMax = Math.max(red, green, blue),
 		cMin = Math.min(red, green, blue),
-		delta = cMax - cMin;
+		chroma = cMax - cMin;
+	if (!chroma)
+		return hsl(0, 0, cMax);
 	let hue;
-	if (!delta)
-		hue = 0;
-	else if (cMax == red)
-		hue = ((green - blue) / delta) % 6;
+	if (cMax == red)
+		hue = ((green - blue) / chroma) % 6;
 	else if (cMax == green)
-		hue = ((blue - red) / delta) + 2;
+		hue = ((blue - red) / chroma) + 2;
 	else if (cMax == blue)
-		hue = ((red - green) / delta) + 4;
+		hue = ((red - green) / chroma) + 4;
 	const lightness = (cMax + cMin) / 2;
+	// not 100% this is right but it seems to work better:
+	// i think Hue's API defines RGB(1,1,1-ε) as hsl(0,ε,1)
+	// but this hsl reference defines it at hsl(0,1,1-ε)
 	return hsl(
 		hue * 60,
-		delta ? delta / (1 - Math.abs(2 * lightness - 1)) : 0,
-		cMax
+		chroma, // / (1 - Math.abs(2 * lightness - 1)),
+		cMax // lightness
 	);
 }
 
 function white(temp = 65000, brightness = 1) {
-	let red, green, blue;
-
-	if (temp <= 66000)
-		red = 1;
-	else
-		red = 1.292936186062745 * Math.pow(temp / 100 - 60, -0.1332047592);
-
-	if (temp <= 66000)
-		green = 0.3900815787690196 * Math.log(temp / 100) - 0.6318414437886275;
-	else
-		green = 1.129890860895294 * Math.pow(temp / 100 - 60, -0.0755148492);
-
-	if (temp >= 66000)
-		blue = 1;
-	else if (temp <= 19000)
-		blue = 0;
-	else
-		blue = 0.543206789110196 * Math.log(temp / 100 - 10) - 1.19625408914;
-
-	// console.log('rgb', red, green, blue);
+	const { red, green, blue } = colTemp(temp);
+	//console.log('rgb', red, green, blue);
 	const payload = rgb(red, green, blue);
 	payload.bri = clamp(0, 255, Math.round(payload.bri * brightness));
 	return payload;
