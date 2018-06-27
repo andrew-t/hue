@@ -18,15 +18,25 @@ class Light extends Lightable {
 
 	autoOn() {
 		const state = states.appropriateState();
-		setTimeout(() => this.getState().then(actual => {
-			if (actual.on == state.on &&
-				actual.bri == state.bri &&
-				actual.hue == state.hue &&
-				actual.sat == state.sat)
-					this.autoOn();
-			else console.log('Cancelling auto for', this.name, state, actual);
-		}, this.luxcaster.config.autoInterval || 60000);
+		checkAndUpdateSoon();
 		return this.luxcaster.http.put(`/lights/${this.id}/state`, state);
+
+		function checkAndUpdateSoon() {
+			setTimeout(() => {
+				this.getState().then(actual => {
+					if (actual.on == state.on &&
+						actual.bri == state.bri &&
+						actual.hue == state.hue &&
+						actual.sat == state.sat)
+							return this.autoOn();
+					else console.log('Cancelling auto for', this.name, state, actual);
+				})
+				.catch(error => {
+					console.error('Error updating auto light', this.name, error);
+					checkAndUpdateSoon();
+				});
+			}, this.luxcaster.config.autoInterval || 60000);
+		}
 	}
 }
 
