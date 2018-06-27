@@ -4,6 +4,6 @@ const { listen, listenAndSet } = require('./util'),
 module.exports = function dayNight(app) {
 	listenAndSet(app, '/day', req => states.dayness(1));
 	listenAndSet(app, '/night', req => states.dayness(0));
-	listen(app, '/smart-on', req => req.lights.auto());
+	listen(app, '/smart-on', req => req.lights.autoOn());
 	listen(app, '/smart-toggle', req => req.lights.autoToggle());
 }
