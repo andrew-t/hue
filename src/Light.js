@@ -17,7 +17,7 @@ class Light extends Lightable {
 	}
 
 	autoOn() {
-		const state = appropriateState();
+		const state = states.appropriateState();
 		setTimeout(() => this.getState().then(actual => {
 			if (actual.on == state.on &&
 				actual.bri == state.bri &&
@@ -35,15 +35,3 @@ Light.prototype.getState = piggyback(function () {
 });
 
 module.exports = Light;
-
-function dayness(n) {
-	return states.white(n * 60000 + 10000, n * 0.8 + 0.2)
-}
-
-function appropriateState() {
-	const h = (Date.now() % 86400000) / 3600000;
-	if (h >= 23 || h <= 4) return dayness(0);
-	if (h <= 22 && h >= 6) return dayness(1);
-	if (h > 12) return dayness(h - 22);
-	else return dayness(3 - h / 2);
-}

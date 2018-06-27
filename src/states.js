@@ -7,7 +7,9 @@ module.exports = {
 	// payload generators
 	hsl, rgb, white, dim,
 	// canned payloads
-	on, off
+	on, off,
+	// day/night settings
+	dayness, appropriateState
 }
 
 const colTemp = require('./color-temperature');
@@ -81,4 +83,16 @@ function cycle(max, value) {
 	if (value < 0)
 		value += max;
 	return value;
+}
+
+function dayness(n) {
+	return states.white(n * 60000 + 10000, n * 0.8 + 0.2)
+}
+
+function appropriateState() {
+	const h = (Date.now() % 86400000) / 3600000;
+	if (h >= 23 || h <= 4) return dayness(0);
+	if (h <= 22 && h >= 6) return dayness(1);
+	if (h > 12) return dayness(h - 22);
+	else return dayness(3 - h / 2);
 }
