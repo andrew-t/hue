@@ -86,7 +86,7 @@ function cycle(max, value) {
 }
 
 function dayness(n) {
-	return states.white(n * 60000 + 10000, n * 0.8 + 0.2)
+	return white(n * 60000 + 10000, n * 0.8 + 0.2)
 }
 
 function appropriateState() {
