@@ -1,4 +1,4 @@
-const states = states = require('./states');
+const states = require('./states');
 
 // Implementations should add:
 // * async autoOn()
