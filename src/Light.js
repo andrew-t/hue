@@ -1,16 +1,10 @@
 const { piggyback } = require('./util'),
-	states = require('./states');
+	states = require('./states'),
+	Lightable = require('./Lightable');
 
-class Light {
+class Light extends Lightable {
 	constructor(luxcaster, id, data) {
-		this.id = id;
-		this.luxcaster = luxcaster;
-		this.name = data.name;
-	}
-
-	matches(name) {
-		return (name == this.id) ||
-			(this.name.toLowerCase() == name.toLowerCase());
+		super(luxcaster, id, data, [ id ]);
 	}
 
 	async isOn() {
@@ -19,21 +13,20 @@ class Light {
 	}
 
 	set(payload) {
-		return this.luxcaster.http.put(
-			`/lights/${this.id}/state`, payload);
+		return this.luxcaster.http.put(`/lights/${this.id}/state`, payload);
 	}
 
-	turnOn() {
-		return this.set(states.on);
-	}
-	turnOff() {
-		return this.set(states.off);
-	}
-
-	async toggle() {
-		if (await this.isOn())
-			await this.turnOff();
-		else await this.turnOn();
+	autoOn() {
+		const state = appropriateState();
+		setTimeout(() => this.getState().then(actual => {
+			if (actual.on == state.on &&
+				actual.bri == state.bri &&
+				actual.hue == state.hue &&
+				actual.sat == state.sat)
+					this.autoOn();
+			else console.log('Cancelling auto for', this.name, state, actual);
+		}, this.luxcaster.config.autoInterval || 60000);
+		return this.luxcaster.http.put(`/lights/${this.id}/state`, state);
 	}
 }
 
@@ -42,3 +35,15 @@ Light.prototype.getState = piggyback(function () {
 });
 
 module.exports = Light;
+
+function dayness(n) {
+	return states.white(n * 60000 + 10000, n * 0.8 + 0.2)
+}
+
+function appropriateState() {
+	const h = (Date.now() % 86400000) / 3600000;
+	if (h >= 23 || h <= 4) return dayness(0);
+	if (h <= 22 && h >= 6) return dayness(1);
+	if (h > 12) return dayness(h - 22);
+	else return dayness(3 - h / 2);
+}

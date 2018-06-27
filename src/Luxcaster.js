@@ -22,7 +22,10 @@ class Luxcaster {
 				new Group(this, id, group));
 
 		// This is a special case that seems to be hardcoded:
-		this.all = new Group(this, 0, { name: 'all' });
+		this.all = new Group(this, 0, {
+			name: 'all',
+			lightIds: this.lights.map(light => light.id)
+		});
 		this.groups.push(this.all);
 	}
 

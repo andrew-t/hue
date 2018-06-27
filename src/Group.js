@@ -1,16 +1,10 @@
 const { piggyback } = require('./util'),
-	states = require('./states');
+	states = require('./states'),
+	Lightable = require('./Lightable');
 
-class Group {
+class Group extends Lightable {
 	constructor(luxcaster, id, data) {
-		this.id = id;
-		this.luxcaster = luxcaster;
-		this.name = data.name;
-	}
-
-	matches(name) {
-		return (name == this.id) ||
-			(this.name.toLowerCase() == name.toLowerCase());
+		super(luxcaster, id, data, data.lights);
 	}
 
 	isOn() {
@@ -30,17 +24,8 @@ class Group {
 			`/groups/${this.id}/action`, payload);
 	}
 
-	turnOn() {
-		return this.set(states.on);
-	}
-	turnOff() {
-		return this.set(states.off);
-	}
-
-	async toggle() {
-		if (await this.anyOn())
-			await this.turnOff();
-		else await this.turnOn();
+	autoOn() {
+		return Promise.all(this.lights.map(light => light.auto()));
 	}
 }
 

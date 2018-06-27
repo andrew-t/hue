@@ -3,6 +3,7 @@ const states = require('../states'),
 
 module.exports = function basics(app) {
 	listenAndSet(app, '/on', req => states.on);
+	listen(app, '/toggle', req => req.lights.toggle());
 
 	listenAndSet(app, '/hsl', req => states.hsl(
 		asNumber(req.query.h),
@@ -22,6 +23,4 @@ module.exports = function basics(app) {
 		asNumber(req.query.brightness || '0.3')));
 
 	listenAndSet(app, '/off', req => states.off);
-
-	listen(app, '/toggle', req => req.lights.toggle());
 };
