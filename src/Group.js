@@ -25,7 +25,7 @@ class Group extends Lightable {
 	}
 
 	autoOn() {
-		return Promise.all(this.lights.map(light => light.auto()));
+		return Promise.all(this.lights.map(light => light.autoOn()));
 	}
 }
 
