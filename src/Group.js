@@ -1,5 +1,4 @@
 const { piggyback } = require('./util'),
-	states = require('./states'),
 	Lightable = require('./Lightable');
 
 class Group extends Lightable {
